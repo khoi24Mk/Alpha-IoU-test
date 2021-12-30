@@ -13,12 +13,19 @@ from utils.plots import plot_one_box
 
 def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, webcam, save_dir, names, save_txt,
            save_img, view_img, colors,data_dir):
+
+    for xx in names:
+        print(xx)
+
     stride = int(model.stride.max())  # model stride
     dataset = LoadImages(data_dir, img_size=imgsz, stride=stride)
     # Run inference
     if device.type != 'cpu':
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
     t0 = time.time()
+
+    info_str = []
+
     for path, img, im0s, vid_cap in dataset:
         print(11111111111)
         print(path)
@@ -81,7 +88,9 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=3)
 
             # Print time (inference + NMS)
-            # print(f'{s}Done. ({t2 - t1:.3f}s)')
+            print(f'{s}Done. ({t2 - t1:.3f}s)')
+            info_str.append(s)
+            print("NEXT")
 
             # Stream results
             if view_img:
@@ -104,14 +113,14 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
                         h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                         vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*fourcc), fps, (w, h))
                     vid_writer.write(im0)
-
+    print("DONE")
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
         print(f"Results saved to {save_dir}{s}")
 
     print(f'Dtone. ({time.time() - t0:.3f}s)')
 
-    return save_dir
+    return save_dir, info_str
 
 
 

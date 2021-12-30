@@ -26,6 +26,7 @@ class loadingModel:
         self.colors= None
 
         self.save_dir = None
+        self.info_str= None
 
 
         parser = argparse.ArgumentParser()
@@ -55,5 +56,5 @@ class loadingModel:
 
     def startDetect(self, data_dir):
 
-        self.save_dir = loadModel.detect(self.source, self.device, self.model, self.imgsz, self.dataset, self.half, self.opt, self.classify, self.modelc, self.webcam, self.save_dir, self.names,self.save_txt,self.save_img, self.view_img, self.colors,data_dir)
+        self.save_dir, self.info_str = loadModel.detect(self.source, self.device, self.model, self.imgsz, self.dataset, self.half, self.opt, self.classify, self.modelc, self.webcam, self.save_dir, self.names,self.save_txt,self.save_img, self.view_img, self.colors,data_dir)
 
