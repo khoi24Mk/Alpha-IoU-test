@@ -1,5 +1,6 @@
 import argparse
 import concurrent
+import pathlib
 import sys
 from os import walk
 
@@ -7,18 +8,35 @@ from pathlib import Path
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.uic.properties import QtGui
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QDialog
+from PyQt5.uic.properties import QtGui, QtWidgets
 
 from loading_screen import Ui_LoadingWindow
 # from main_stuff import Ui_MainWindow
 from process_screen import Ui_MainWindow
 from runDetect import loadingModel
 from utils.general import increment_path
+from warning import Ui_Dialog
 
 count = 0
 
 detecter = None;
+
+import subprocess, os, platform
+
+
+class EmployeeDlg(QDialog):
+    """Employee dialog."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.mess = Ui_Dialog()
+        self.mess.setupUi(self)
+
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setWindowFlags(QtCore.Qt.SplashScreen | QtCore.Qt.FramelessWindowHint );
+        self.mess.pushButton.clicked.connect(self.closeFunction)
+    def closeFunction(self):
+        self.close()
 
 
 class WindowMain(QMainWindow):
@@ -31,6 +49,8 @@ class WindowMain(QMainWindow):
         self.currentIndex = 0
         self.save_dir = None
         self.img_info = None
+        self.folder_index = 0
+        self.save_detection =None
 
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -43,6 +63,7 @@ class WindowMain(QMainWindow):
         self.ui.Bopen.clicked.connect(self.openFunction)
 
         self.ui.Bdetect.clicked.connect(self.detectFunction)
+        self.ui.Bview.clicked.connect(self.viewFunction)
 
         self.ui.Bleftt.clicked.connect(self.leftFunctions)
         self.ui.Bleftt.setEnabled(False)
@@ -65,6 +86,9 @@ class WindowMain(QMainWindow):
 
     def rightFunctions(self):
         print("right")
+        print(self.currentIndex)
+        print(len(self.img))
+        print(len(self.img_info))
         if self.currentIndex + 1 == len(self.img):
             self.currentIndex = 0
         else:
@@ -91,24 +115,45 @@ class WindowMain(QMainWindow):
             return
         fname = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.ui.lineEdit.setText(fname)
+    def cleanUP(self):
+        self.currentIndex = 0
+        self.img_info = []
+        self.img = []
+
+    def createFolder(self,saveDir):
+
+        while(os.path.isdir(str(saveDir / f'det{self.folder_index}'))):
+            self.folder_index+=1
+        pathlib.Path(str(saveDir / f'det{self.folder_index}')).mkdir(parents=True, exist_ok=True)
+        self.save_detection = str(saveDir / f'det{self.folder_index}')
+
+
 
     def detectFunction(self):
+        if(not self.ui.lineEdit.text()):
+            dlg = EmployeeDlg(self)
+            dlg.exec_()
+            return
+
+
         global detecter
+        self.cleanUP()
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.submit(detecter.startDetect(self.ui.lineEdit.text()))
 
-        print(detecter.save_dir)
-        self.save_dir = detecter.save_dir
+        print(detecter.save_img)
+        self.save_dir = detecter.save_img
+
 
         self.img = next(walk(self.save_dir), (None, None, []))[2]  # [] if no file
         self.img_info = detecter.info_str
         print(self.img)
 
 
-        self.ui.label_5.setText("Image Info: "+ self.img_info[-1])
+        self.ui.label_5.setText("Image Info: "+ self.img_info[0])
 
-        img_dir = str(self.save_dir / self.img[-1])
+        img_dir = str(self.save_dir / self.img[0])
 
         str_img = "image.jpg"
 
@@ -122,6 +167,19 @@ class WindowMain(QMainWindow):
         self.ui.Bleftt.setEnabled(True)
         self.ui.Bright.setEnabled(True)
 
+    def viewFunction (self):
+        if (not self.ui.lineEdit.text()):
+            dlg = EmployeeDlg(self)
+            dlg.exec_()
+            return
+        img_dir = str(self.save_dir / self.img[self.currentIndex])
+
+        if platform.system() == 'Darwin':  # macOS
+            subprocess.call(('open', img_dir))
+        elif platform.system() == 'Windows':  # Windows
+            os.startfile(img_dir)
+        else:  # linux variants
+            subprocess.call(('xdg-open', img_dir))
 
 class WindowLoading(QMainWindow):
 
@@ -164,3 +222,5 @@ if __name__ == '__main__':
     window = WindowLoading()
 
     sys.exit(app.exec_())
+
+

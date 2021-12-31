@@ -1,3 +1,6 @@
+import os
+import pathlib
+
 import torch
 import time
 import cv2
@@ -17,6 +20,8 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
     for xx in names:
         print(xx)
 
+    save_detection = ""
+
     stride = int(model.stride.max())  # model stride
     dataset = LoadImages(data_dir, img_size=imgsz, stride=stride)
     # Run inference
@@ -25,6 +30,13 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
     t0 = time.time()
 
     info_str = []
+    folder_index = 0
+    print("PATH DIR")
+    print(save_dir)
+    while (os.path.isdir(str(save_dir / f'det{folder_index}'))):
+        folder_index += 1
+    pathlib.Path(str(save_dir / f'det{folder_index}')).mkdir(parents=True, exist_ok=True)
+    save_detection = (save_dir / f'det{folder_index}')
 
     for path, img, im0s, vid_cap in dataset:
         print(11111111111)
@@ -58,8 +70,12 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
             print(666666666666)
             p = Path(p)  # to Path
 
-            save_path = str(save_dir / p.name)  # img.jpg
-            txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
+
+
+
+
+            save_path = str(save_detection / p.name)  # img.jpg
+            txt_path = str(save_detection / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # img.txt
             print("save_pathhhhhhhhhhh "+save_path)
             print("txt_pathhhhhhhhh " + txt_path)
 
@@ -120,7 +136,7 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
 
     print(f'Dtone. ({time.time() - t0:.3f}s)')
 
-    return save_dir, info_str
+    return save_detection, info_str
 
 
 

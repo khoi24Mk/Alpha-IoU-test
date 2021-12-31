@@ -146,10 +146,11 @@ class Ui_MainWindow(object):
         self.Limage.setText("")
         self.Limage.setObjectName("Limage")
         self.label_5 = QtWidgets.QLabel(self.frame_2)
-        self.label_5.setGeometry(QtCore.QRect(50, 240, 491, 51))
+        self.label_5.setGeometry(QtCore.QRect(50, 240, 491, 100))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_5.setFont(font)
+        self.label_5.setWordWrap(True)
         self.label_5.setStyleSheet("QLabel{\n"
 "    Color: #F5F5F5;\n"
 "}\n"

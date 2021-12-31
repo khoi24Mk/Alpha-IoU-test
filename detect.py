@@ -31,8 +31,11 @@ def Detect(opt, save_img=False):
     print("sourceeeeeeeeeeeeeeee", source)
     # Directories save to exp folder
     save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
+    print("savinggggggggggggg v1", save_dir)
+
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
     print("savinggggggggggggg", save_dir)
+    print("savinggggggggggggg txt", save_txt)
 
 
 
