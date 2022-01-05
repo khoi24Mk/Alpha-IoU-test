@@ -29,14 +29,16 @@ def detect(source, device, model, imgsz, dataset, half, opt, classify, modelc, w
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
     t0 = time.time()
 
-    info_str = []
-    folder_index = 0
     print("PATH DIR")
     print(save_dir)
+    info_str = []
+    folder_index = 0
+
     while (os.path.isdir(str(save_dir / f'det{folder_index}'))):
         folder_index += 1
     pathlib.Path(str(save_dir / f'det{folder_index}')).mkdir(parents=True, exist_ok=True)
     save_detection = (save_dir / f'det{folder_index}')
+
 
     for path, img, im0s, vid_cap in dataset:
         print(11111111111)

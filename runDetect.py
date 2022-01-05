@@ -1,7 +1,7 @@
 import argparse
 
 import torch
-import loadModel
+import startDetections
 
 from detect import Detect
 from utils.general import  check_requirements
@@ -56,5 +56,5 @@ class loadingModel:
 
     def startDetect(self, data_dir):
 
-        self.save_img, self.info_str = loadModel.detect(self.source, self.device, self.model, self.imgsz, self.dataset, self.half, self.opt, self.classify, self.modelc, self.webcam, self.save_dir, self.names,self.save_txt,self.save_img, self.view_img, self.colors,data_dir)
+        self.save_img, self.info_str = startDetections.detect(self.source, self.device, self.model, self.imgsz, self.dataset, self.half, self.opt, self.classify, self.modelc, self.webcam, self.save_dir, self.names,self.save_txt,self.save_img, self.view_img, self.colors,data_dir)
 
